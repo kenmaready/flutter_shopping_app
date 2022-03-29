@@ -1,10 +1,8 @@
-import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
-// import 'package:path_provider/path_provider.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_shopping_app/screens/products_overview.dart';
-import './models/product.dart';
+import 'package:provider/provider.dart';
+import './providers/products.dart';
+import 'providers/product.dart';
+import './screens/all.dart';
 import './config.dart';
 
 void main() {
@@ -17,12 +15,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: config.title,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: ProductsOverviewScreen(),
+    return ChangeNotifierProvider(
+      create: (ctx) => Products(),
+      child: MaterialApp(
+          title: config.title,
+          theme: ThemeData(
+            primarySwatch: Colors.purple,
+            accentColor: Colors.deepOrange,
+            fontFamily: 'Lato',
+          ),
+          home: ProductsOverviewScreen(),
+          routes: {
+            ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
+          }),
     );
   }
 }

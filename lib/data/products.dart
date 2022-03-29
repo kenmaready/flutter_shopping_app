@@ -1,6 +1,6 @@
-import '../models/product.dart';
+import '../providers/product.dart';
 
-List<Product> products = [
+List<Product> productCatalog = [
   Product(
     id: 'p1',
     title: 'Red Shirt',
