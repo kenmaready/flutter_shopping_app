@@ -39,6 +39,18 @@ class ProductItem extends StatelessWidget {
                 color: Theme.of(context).accentColor,
                 onPressed: () {
                   cart.addItem(product, 1);
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(
+                        "Snacking on this ${product.title}!",
+                        style: TextStyle(fontFamily: 'PermanentMarker'),
+                        textAlign: TextAlign.center,
+                      ),
+                      duration: Duration(milliseconds: 1800),
+                      action: SnackBarAction(
+                        label: 'Undo',
+                        onPressed: () => cart.removeOne(product.id),
+                      )));
                 },
               ),
               backgroundColor: Colors.black54,

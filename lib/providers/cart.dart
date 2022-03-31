@@ -64,8 +64,22 @@ class Cart with ChangeNotifier {
     notifyListeners();
   }
 
-  void removeItem(Key id) {
+  void remove(Key id) {
     _items.removeWhere((key, value) => value.id == id);
+    notifyListeners();
+  }
+
+  void removeOne(String productId) {
+    // if product not in cart, then return without changes:
+    if (!_items.containsKey(productId)) return;
+
+    // if product is in cart then reduce by 1 (or if only one remainindg
+    // then remove entire product from cart:)
+    if (_items[productId].quantity > 1) {
+      _items[productId].quantity -= 1;
+    } else {
+      _items.removeWhere((key, value) => key == productId);
+    }
     notifyListeners();
   }
 
