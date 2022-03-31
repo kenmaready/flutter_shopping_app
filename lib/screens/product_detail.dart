@@ -13,9 +13,36 @@ class ProductDetailScreen extends StatelessWidget {
         Provider.of<Products>(context, listen: false).findById(productId);
     return Scaffold(
       appBar: AppBar(
-        title: Text("${product.title}!"),
+        title: Text("Just ${product.title}!",
+            style: TextStyle(fontFamily: 'PermanentMarker')),
       ),
-      body: Container(child: Image.network(product.imageUrl)),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+                height: 300,
+                width: double.infinity,
+                child: Image.network(product.imageUrl, fit: BoxFit.cover)),
+            SizedBox(height: 10),
+            Text(product.title,
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey)),
+            SizedBox(height: 10),
+            Text('\$${product.price.toStringAsFixed(2)}',
+                style: TextStyle(color: Colors.grey)),
+            SizedBox(height: 10),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(24),
+              child: Text(product.description,
+                  textAlign: TextAlign.left,
+                  style: TextStyle(color: Colors.grey)),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
