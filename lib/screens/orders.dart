@@ -14,7 +14,7 @@ class OrdersScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-          title: Text('Your Orders',
+          title: Text('Your Orders!',
               style: TextStyle(fontFamily: 'PermanentMarker'))),
       body: ListView.builder(
         itemCount: orders.length,

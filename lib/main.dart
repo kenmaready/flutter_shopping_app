@@ -1,3 +1,5 @@
+import 'package:flutter_shopping_app/screens/edit_product.dart';
+import 'package:flutter_shopping_app/screens/user_products.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 //
@@ -33,13 +35,18 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.purple,
           accentColor: Colors.deepOrange,
           fontFamily: 'Lato',
+          textTheme: Theme.of(context)
+              .textTheme
+              .copyWith(headline1: TextStyle(fontFamily: 'PermamentMarker')),
         ),
         home: ProductsOverviewScreen(),
         routes: {
           ProductsOverviewScreen.routeName: (ctx) => ProductsOverviewScreen(),
           ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
-          CartScreen.routeName: (ctx) => CartScreen(),
+          UserProductsScreen.routeName: (ctx) => UserProductsScreen(),
+          EditProductScreen.routeName: (ctx) => EditProductScreen(),
           OrdersScreen.routeName: (ctx) => OrdersScreen(),
+          CartScreen.routeName: (ctx) => CartScreen(),
         },
         debugShowCheckedModeBanner: false,
       ),

@@ -26,38 +26,41 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
     final productCatalog = Provider.of<Products>(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text(config.title), actions: [
-        PopupMenuButton(
-          onSelected: (FilterOptions selectedValue) {
-            setState(() {
-              _favoritesOnly = (selectedValue == FilterOptions.Favorites);
-            });
-          },
-          icon: Icon(Icons.more_vert),
-          itemBuilder: (_) => [
-            const PopupMenuItem(
-              child: Text('Favorites Only'),
-              value: FilterOptions.Favorites,
+      appBar: AppBar(
+          title: Text("Shop Blamazon!",
+              style: TextStyle(fontFamily: 'PermanentMarker')),
+          actions: [
+            PopupMenuButton(
+              onSelected: (FilterOptions selectedValue) {
+                setState(() {
+                  _favoritesOnly = (selectedValue == FilterOptions.Favorites);
+                });
+              },
+              icon: Icon(Icons.more_vert),
+              itemBuilder: (_) => [
+                const PopupMenuItem(
+                  child: Text('Favorites Only'),
+                  value: FilterOptions.Favorites,
+                ),
+                const PopupMenuItem(
+                  child: Text('Show All'),
+                  value: FilterOptions.All,
+                )
+              ],
             ),
-            const PopupMenuItem(
-              child: Text('Show All'),
-              value: FilterOptions.All,
-            )
-          ],
-        ),
-        Consumer<Cart>(
-          builder: (_, cart, child) => Badge(
-            child: child,
-            value: cart.itemCount.toString(),
-          ),
-          child: IconButton(
-            icon: Icon(Icons.shopping_cart),
-            onPressed: () {
-              Navigator.of(context).pushNamed(CartScreen.routeName);
-            },
-          ),
-        ),
-      ]),
+            Consumer<Cart>(
+              builder: (_, cart, child) => Badge(
+                child: child,
+                value: cart.itemCount.toString(),
+              ),
+              child: IconButton(
+                icon: Icon(Icons.shopping_cart),
+                onPressed: () {
+                  Navigator.of(context).pushNamed(CartScreen.routeName);
+                },
+              ),
+            ),
+          ]),
       body: ProductGrid(favoritesOnly: _favoritesOnly),
       drawer: AppDrawer(),
       backgroundColor: Colors.purple.shade100,
