@@ -48,6 +48,11 @@ class CartScreen extends StatelessWidget {
                           onPressed: () {
                             Provider.of<Orders>(context, listen: false)
                                 .placeOrder(cart);
+                            // first pop Overview screen to avoid
+                            // double-overview issue later
+                            Navigator.of(context).pop();
+                            // THEN navigate to orders screen to show order
+                            // was submitted:
                             Navigator.of(context)
                                 .pushReplacementNamed(OrdersScreen.routeName);
                           },

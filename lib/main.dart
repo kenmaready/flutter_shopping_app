@@ -1,5 +1,4 @@
-import 'package:flutter_shopping_app/screens/edit_product.dart';
-import 'package:flutter_shopping_app/screens/user_products.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 //
@@ -9,11 +8,13 @@ import './providers/cart.dart';
 import './screens/all.dart';
 import './config.dart';
 
-void main() => runApp(const MyApp());
+Future main() async {
+  await dotenv.load();
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
-  const MyApp();
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

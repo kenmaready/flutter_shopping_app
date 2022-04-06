@@ -6,9 +6,9 @@ import '../providers/product.dart';
 import './product_item.dart';
 
 class ProductGrid extends StatelessWidget {
-  bool _favoritesOnly;
+  late bool _favoritesOnly;
 
-  ProductGrid({favoritesOnly = false}) {
+  ProductGrid({Key? key, favoritesOnly = false}) : super(key: key) {
     _favoritesOnly = favoritesOnly;
   }
 

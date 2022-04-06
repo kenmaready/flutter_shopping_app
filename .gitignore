@@ -9,6 +9,10 @@
 .history
 .svn/
 
+# confidential variables
+.env
+
+
 # IntelliJ related
 *.iml
 *.ipr

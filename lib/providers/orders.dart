@@ -10,7 +10,7 @@ class OrderItem {
   final Product product;
   final int quantity;
 
-  OrderItem({@required this.product, @required this.quantity});
+  OrderItem({required this.product, required this.quantity});
 }
 
 // Order object consists of a list of one or more OrderItems grouped
