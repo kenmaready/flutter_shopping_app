@@ -28,11 +28,6 @@ class OrderItem {
       : id = Key(args['id']),
         product = Product.fromMap(json.decode(args['product'])),
         quantity = int.parse(args['quantity']);
-
-  OrderItem.empty()
-      : id = const Key(''),
-        product = Product.empty(),
-        quantity = 0;
 }
 
 // Order object consists of a list of one or more OrderItems grouped
@@ -89,18 +84,10 @@ class Order {
     });
   }
 
-  List<OrderItem> _decodeList(List<String> list) {
-    var items = list.map((orderItem) {
-      OrderItem newOrderItem = OrderItem.fromJson(json.decode(orderItem));
-      return newOrderItem;
-    }).toList();
-    return items;
-  }
-
   Order.fromJson(MapEntry e)
       : id = e.key,
         dateTime = DateTime.parse(e.value['dateTime']),
-        _items = e.value['_items'].map<OrderItem>((item) {
+        _items = (e.value['_items'] as List<dynamic>).map<OrderItem>((item) {
           OrderItem newOrderItem = OrderItem.fromJson(json.decode(item));
           return newOrderItem;
         }).toList();
@@ -154,7 +141,7 @@ class Orders with ChangeNotifier {
         for (MapEntry e in orderData.entries) {
           Order newOrder = Order.fromJson(e);
           fetchedOrders.add(newOrder);
-          _orders = fetchedOrders;
+          _orders = fetchedOrders.reversed.toList();
         }
       }
       notifyListeners();

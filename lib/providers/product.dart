@@ -82,7 +82,7 @@ class Product with ChangeNotifier {
         'description': description,
         'imageUrl': imageUrl,
         'price': price.toStringAsFixed(2),
-        'isFavorite': isFavorite.toString()
+        'isFavorite': isFavorite
       });
 
   Product.fromJson(MapEntry e)
