@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:objectid/objectid.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:core';
 //
 import './product.dart';
 import './cart.dart';
@@ -11,7 +12,7 @@ String base_url = dotenv.env['FIREBASE_BASE_URL'] as String;
 
 // OrderItem consists of a product and quantity
 class OrderItem {
-  final id = Key(ObjectId().toString());
+  Key id = Key(ObjectId().toString());
   final Product product;
   final int quantity;
 
@@ -22,6 +23,16 @@ class OrderItem {
         "product": product.toJson(),
         "quantity": quantity.toString()
       });
+
+  OrderItem.fromJson(Map<String, dynamic> args)
+      : id = Key(args['id']),
+        product = Product.fromMap(json.decode(args['product'])),
+        quantity = int.parse(args['quantity']);
+
+  OrderItem.empty()
+      : id = const Key(''),
+        product = Product.empty(),
+        quantity = 0;
 }
 
 // Order object consists of a list of one or more OrderItems grouped
@@ -43,7 +54,7 @@ class Order {
 
   void _convertCartToOrder(Cart cart) {
     cart.items
-        .forEach((cartItemId, cartItem) => _items?.add(cartItem.toOrderItem()));
+        .forEach((cartItemId, cartItem) => _items.add(cartItem.toOrderItem()));
   }
 
   List<OrderItem> get items {
@@ -66,7 +77,7 @@ class Order {
       Order(
           id: id ?? this.id,
           dateTime: dateTime ?? this.dateTime,
-          items: _items ?? this._items);
+          items: _items);
 
   String toJson() {
     var listItems = _items.map((orderItem) => orderItem.toJson()).toList();
@@ -77,12 +88,28 @@ class Order {
       "_items": listItems,
     });
   }
+
+  List<OrderItem> _decodeList(List<String> list) {
+    var items = list.map((orderItem) {
+      OrderItem newOrderItem = OrderItem.fromJson(json.decode(orderItem));
+      return newOrderItem;
+    }).toList();
+    return items;
+  }
+
+  Order.fromJson(MapEntry e)
+      : id = e.key,
+        dateTime = DateTime.parse(e.value['dateTime']),
+        _items = e.value['_items'].map<OrderItem>((item) {
+          OrderItem newOrderItem = OrderItem.fromJson(json.decode(item));
+          return newOrderItem;
+        }).toList();
 }
 
 // A Collection of Orders (wrapper around list of Orders)
 class Orders with ChangeNotifier {
   final id = Key(ObjectId().toString());
-  final List<Order> _orders = [];
+  List<Order> _orders = [];
 
   List<Order> get orders {
     return [..._orders];
@@ -112,5 +139,27 @@ class Orders with ChangeNotifier {
       total += order.total;
     }
     return total;
+  }
+
+  Future<void> fetchOrders() async {
+    var url = Uri.https(base_url, '/orders.json');
+
+    try {
+      final response = await http.get(url);
+      if (response.body == 'null') {
+        _orders = [];
+      } else {
+        List<Order> fetchedOrders = [];
+        final Map<String, dynamic> orderData = json.decode(response.body);
+        for (MapEntry e in orderData.entries) {
+          Order newOrder = Order.fromJson(e);
+          fetchedOrders.add(newOrder);
+          _orders = fetchedOrders;
+        }
+      }
+      notifyListeners();
+    } catch (error) {
+      rethrow;
+    }
   }
 }

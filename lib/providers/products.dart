@@ -8,16 +8,6 @@ import 'product.dart';
 
 String base_url = dotenv.env['FIREBASE_BASE_URL'] as String;
 
-Product fromDBEntry(MapEntry e) {
-  return Product(
-      id: e.key ?? '',
-      title: e.value['title'] ?? '',
-      description: e.value['description'] ?? '',
-      price: double.parse(e.value['price']),
-      imageUrl: e.value['imageUrl'] ?? '',
-      isFavorite: e.value['isFavorite'] == true);
-}
-
 class Products with ChangeNotifier {
   List<Product> _products = [];
 
@@ -33,7 +23,7 @@ class Products with ChangeNotifier {
       List<Product> fetchedProductList = [];
       final Map<String, dynamic> productData = json.decode(response.body);
       for (MapEntry e in productData.entries) {
-        fetchedProductList.add(fromDBEntry(e));
+        fetchedProductList.add(Product.fromJson(e));
       }
       _products = fetchedProductList;
       notifyListeners();

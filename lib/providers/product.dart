@@ -84,4 +84,20 @@ class Product with ChangeNotifier {
         'price': price.toStringAsFixed(2),
         'isFavorite': isFavorite.toString()
       });
+
+  Product.fromJson(MapEntry e)
+      : id = e.key ?? '',
+        title = e.value['title'] ?? '',
+        description = e.value['description'] ?? '',
+        price = double.parse(e.value['price'] ?? '0.0'),
+        imageUrl = e.value['imageUrl'] ?? '',
+        isFavorite = e.value['isFavorite'];
+
+  Product.fromMap(Map<String, dynamic> args)
+      : id = args['id'],
+        title = args['title'],
+        description = args['description'],
+        price = double.parse(args['price']),
+        imageUrl = args['imageUrl'],
+        isFavorite = args['isFavorite'] == 'true';
 }
