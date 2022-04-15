@@ -96,7 +96,10 @@ class Order {
 // A Collection of Orders (wrapper around list of Orders)
 class Orders with ChangeNotifier {
   final id = Key(ObjectId().toString());
-  List<Order> _orders = [];
+  List<Order> _orders;
+  String _authToken;
+
+  Orders(this._orders, this._authToken);
 
   List<Order> get orders {
     return [..._orders];
@@ -106,8 +109,12 @@ class Orders with ChangeNotifier {
     return _orders.length;
   }
 
+  Map<String, String> get _authQuery {
+    return {"auth": _authToken};
+  }
+
   Future<void> placeOrder(Cart cart) async {
-    var url = Uri.https(base_url, '/orders.json');
+    var url = Uri.https(base_url, '/orders.json', _authQuery);
     Order newOrder = Order.fromCart(cart);
 
     try {
@@ -129,7 +136,7 @@ class Orders with ChangeNotifier {
   }
 
   Future<void> fetchOrders() async {
-    var url = Uri.https(base_url, '/orders.json');
+    var url = Uri.https(base_url, '/orders.json', _authQuery);
 
     try {
       final response = await http.get(url);

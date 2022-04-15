@@ -43,7 +43,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   @override
   Widget build(BuildContext context) {
     final productCatalog = Provider.of<Products>(context);
-    productCatalog.fetchProducts();
+    print("rebuilding ProductsOverview() screen...");
 
     return Scaffold(
       appBar: AppBar(

@@ -4,26 +4,58 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 //
 import '../exceptions/http_exception.dart';
-import 'product.dart';
+import './product.dart';
+import './auth.dart';
 
 String base_url = dotenv.env['FIREBASE_BASE_URL'] as String;
 
 class Products with ChangeNotifier {
   List<Product> _products = [];
+  final Auth _auth;
+
+  Products(this._products, this._auth) {
+    print("creating new Products instance...");
+  }
 
   List<Product> get products {
     return [..._products];
   }
 
+  Map<String, String> get _authQuery {
+    return {"auth": _auth.token as String};
+  }
+
   Future<void> fetchProducts() async {
-    var url = Uri.https(base_url, '/products.json');
+    final productsUrl = Uri.https(base_url, '/products.json', _authQuery);
+    final favoritesUrl = Uri.https(
+        base_url, '/users/${_auth.userId}/favorites.json', _authQuery);
 
     try {
-      final response = await http.get(url);
+      final response = await http.get(productsUrl);
       List<Product> fetchedProductList = [];
       final Map<String, dynamic> productData = json.decode(response.body);
+      //
+      // get favorites information for user:
+
+      final favoritesResponse = await http.get(favoritesUrl);
+      List<String> favoritesById = [];
+      if (json.decode(favoritesResponse.body) != null) {
+        final Map<String, dynamic> favoritesData =
+            json.decode(favoritesResponse.body);
+        print("favoritesData: $favoritesData");
+        for (var productId in favoritesData.keys) {
+          favoritesById.add(productId);
+        }
+      }
+      print("favoritesById: ${favoritesById.toString()}");
+      //
       for (MapEntry e in productData.entries) {
-        fetchedProductList.add(Product.fromJson(e));
+        print('${e.key}: ${e.value['title']}');
+        Product nextProduct = Product.fromJson(e);
+        if (favoritesById.contains(nextProduct.id)) {
+          nextProduct.isFavorite = true;
+        }
+        fetchedProductList.add(nextProduct);
       }
       _products = fetchedProductList;
       notifyListeners();
@@ -33,7 +65,7 @@ class Products with ChangeNotifier {
   }
 
   Future<void> addProduct(Product product) async {
-    var url = Uri.https(base_url, '/products.json');
+    var url = Uri.https(base_url, '/products.json', _authQuery);
 
     try {
       final response = await http.post(url, body: product.toJson());
@@ -57,7 +89,8 @@ class Products with ChangeNotifier {
   }
 
   Future<void> updateProduct(Product updatedProduct) async {
-    var url = Uri.https(base_url, '/products/${updatedProduct.id}.json');
+    var url =
+        Uri.https(base_url, '/products/${updatedProduct.id}.json', _authQuery);
 
     final int prodIndex =
         _products.indexWhere((product) => product.id == updatedProduct.id);
@@ -79,7 +112,7 @@ class Products with ChangeNotifier {
   }
 
   Future<void> deleteProduct(String productId) async {
-    var url = Uri.https(base_url, '/products/$productId.json');
+    var url = Uri.https(base_url, '/products/$productId.json', _authQuery);
 
     // locatl delete operation
     // 1. Get index of product to be deletd from _products list:

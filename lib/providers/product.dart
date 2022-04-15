@@ -31,7 +31,7 @@ class Product with ChangeNotifier {
       this.imageUrl = '',
       this.isFavorite = false});
 
-  Future<void> toggleFavoriteStatus() async {
+  Future<void> toggleFavoriteStatus(String token, String userId) async {
     final prevStatus = isFavorite;
 
     // update locally
@@ -39,11 +39,13 @@ class Product with ChangeNotifier {
     notifyListeners();
 
     // update on server
-    var url = Uri.https(base_url, '/products/$id.json');
+    var url = Uri.https(
+        base_url, '/users/$userId/favorites/$id.json', {"auth": token});
 
     try {
-      final response =
-          await http.patch(url, body: json.encode({'isFavorite': isFavorite}));
+      final response = isFavorite
+          ? await http.post(url, body: json.encode(isFavorite))
+          : await http.delete(url);
       if (response.statusCode >= 400) {
         throw HttpException(
             'There was an error updating the favorite status on the server. Error Code: ${response.statusCode}');
@@ -82,7 +84,6 @@ class Product with ChangeNotifier {
         'description': description,
         'imageUrl': imageUrl,
         'price': price.toStringAsFixed(2),
-        'isFavorite': isFavorite
       });
 
   Product.fromJson(MapEntry e)
@@ -91,7 +92,7 @@ class Product with ChangeNotifier {
         description = e.value['description'] ?? '',
         price = double.parse(e.value['price'] ?? '0.0'),
         imageUrl = e.value['imageUrl'] ?? '',
-        isFavorite = e.value['isFavorite'];
+        isFavorite = false;
 
   Product.fromMap(Map<String, dynamic> args)
       : id = args['id'],
