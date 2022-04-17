@@ -25,13 +25,20 @@ class Products with ChangeNotifier {
     return {"auth": _auth.token as String};
   }
 
-  Future<void> fetchProducts() async {
-    final productsUrl = Uri.https(base_url, '/products.json', _authQuery);
+  Future<void> fetchProducts({filterByUser = false}) async {
+    var queryString = _authQuery;
+    if (filterByUser) {
+      queryString["orderBy"] = json.encode("ownerId");
+      queryString["equalTo"] = json.encode("${_auth.userId as String}");
+    }
+
+    var productsUrl = Uri.https(base_url, '/products.json', queryString);
     final favoritesUrl = Uri.https(
         base_url, '/users/${_auth.userId}/favorites.json', _authQuery);
 
     try {
       final response = await http.get(productsUrl);
+      print("response.body: ${response.body}");
       List<Product> fetchedProductList = [];
       final Map<String, dynamic> productData = json.decode(response.body);
       //

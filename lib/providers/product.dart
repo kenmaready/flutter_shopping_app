@@ -13,15 +13,18 @@ class Product with ChangeNotifier {
   final String description;
   final double price;
   final String imageUrl;
+  final String ownerId;
   bool isFavorite;
 
-  Product(
-      {required this.id,
-      required this.title,
-      required this.description,
-      required this.price,
-      required this.imageUrl,
-      this.isFavorite = false});
+  Product({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.price,
+    required this.imageUrl,
+    required this.ownerId,
+    this.isFavorite = false,
+  });
 
   Product.empty(
       {this.id = '',
@@ -29,7 +32,8 @@ class Product with ChangeNotifier {
       this.price = 0.0,
       this.description = '',
       this.imageUrl = '',
-      this.isFavorite = false});
+      this.isFavorite = false,
+      this.ownerId = ''});
 
   Future<void> toggleFavoriteStatus(String token, String userId) async {
     final prevStatus = isFavorite;
@@ -64,14 +68,16 @@ class Product with ChangeNotifier {
           String? description,
           double? price,
           String? imageUrl,
-          bool? isFavorite}) =>
+          bool? isFavorite,
+          String? ownerId}) =>
       Product(
           id: id ?? this.id,
           title: title ?? this.title,
           description: description ?? this.description,
           price: price ?? this.price,
           imageUrl: imageUrl ?? this.imageUrl,
-          isFavorite: isFavorite ?? this.isFavorite);
+          isFavorite: isFavorite ?? this.isFavorite,
+          ownerId: ownerId ?? this.ownerId);
 
   void printIt() {
     print(
@@ -84,6 +90,7 @@ class Product with ChangeNotifier {
         'description': description,
         'imageUrl': imageUrl,
         'price': price.toStringAsFixed(2),
+        'ownerId': ownerId,
       });
 
   Product.fromJson(MapEntry e)
@@ -92,6 +99,7 @@ class Product with ChangeNotifier {
         description = e.value['description'] ?? '',
         price = double.parse(e.value['price'] ?? '0.0'),
         imageUrl = e.value['imageUrl'] ?? '',
+        ownerId = e.value['ownerId'] ?? '',
         isFavorite = false;
 
   Product.fromMap(Map<String, dynamic> args)
@@ -99,6 +107,9 @@ class Product with ChangeNotifier {
         title = args['title'],
         description = args['description'],
         price = double.parse(args['price']),
+        ownerId = args['ownerId'],
         imageUrl = args['imageUrl'],
-        isFavorite = args['isFavorite'] == 'true';
+        isFavorite = false {
+    print("creating product for $title");
+  }
 }

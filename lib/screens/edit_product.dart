@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../widgets/error_alert.dart';
 import '../providers/products.dart';
 import '../providers/product.dart';
+import '../providers/auth.dart';
 
 class EditProductScreen extends StatefulWidget {
   static const String routeName = "/product/edit";
@@ -90,7 +91,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
         _imageUrlController.text = _editedProduct.imageUrl;
         _appBarTitle = 'Edit Your Freaking ${_editedProduct.title}';
       } else {
-        _editedProduct = Product.empty();
+        final userId = Provider.of<Auth>(context).userId ?? '';
+        _editedProduct = Product.empty(ownerId: userId);
         _appBarTitle = "Add Your New Freaking Product!";
       }
     }

@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'dart:core';
 //
 import './product.dart';
+import './auth.dart';
 import './cart.dart';
 
 String base_url = dotenv.env['FIREBASE_BASE_URL'] as String;
@@ -35,15 +36,17 @@ class OrderItem {
 class Order {
   String? id;
   DateTime dateTime;
+  String userId;
   List<OrderItem> _items = [];
 
   Order(
       {required this.id,
       required this.dateTime,
+      required this.userId,
       required List<OrderItem> items})
       : _items = items;
 
-  Order.fromCart(Cart cart) : dateTime = DateTime.now() {
+  Order.fromCart(Cart cart, this.userId) : dateTime = DateTime.now() {
     _convertCartToOrder(cart);
   }
 
@@ -68,10 +71,15 @@ class Order {
     return total;
   }
 
-  Order copyWith({String? id, DateTime? dateTime, List<OrderItem>? items}) =>
+  Order copyWith(
+          {String? id,
+          DateTime? dateTime,
+          String? userId,
+          List<OrderItem>? items}) =>
       Order(
           id: id ?? this.id,
           dateTime: dateTime ?? this.dateTime,
+          userId: userId ?? this.userId,
           items: _items);
 
   String toJson() {
@@ -80,6 +88,7 @@ class Order {
     return json.encode({
       "id": id,
       "dateTime": dateTime.toIso8601String(),
+      "userId": userId,
       "_items": listItems,
     });
   }
@@ -87,6 +96,7 @@ class Order {
   Order.fromJson(MapEntry e)
       : id = e.key,
         dateTime = DateTime.parse(e.value['dateTime']),
+        userId = e.value['userId'],
         _items = (e.value['_items'] as List<dynamic>).map<OrderItem>((item) {
           OrderItem newOrderItem = OrderItem.fromJson(json.decode(item));
           return newOrderItem;
@@ -97,9 +107,9 @@ class Order {
 class Orders with ChangeNotifier {
   final id = Key(ObjectId().toString());
   List<Order> _orders;
-  String _authToken;
+  Auth _auth;
 
-  Orders(this._orders, this._authToken);
+  Orders(this._orders, this._auth);
 
   List<Order> get orders {
     return [..._orders];
@@ -110,12 +120,12 @@ class Orders with ChangeNotifier {
   }
 
   Map<String, String> get _authQuery {
-    return {"auth": _authToken};
+    return {"auth": _auth.token as String};
   }
 
   Future<void> placeOrder(Cart cart) async {
     var url = Uri.https(base_url, '/orders.json', _authQuery);
-    Order newOrder = Order.fromCart(cart);
+    Order newOrder = Order.fromCart(cart, _auth.userId as String);
 
     try {
       final response = await http.post(url, body: newOrder.toJson());
@@ -136,23 +146,28 @@ class Orders with ChangeNotifier {
   }
 
   Future<void> fetchOrders() async {
+    print("fetchOders() called...");
     var url = Uri.https(base_url, '/orders.json', _authQuery);
 
     try {
       final response = await http.get(url);
+      print("response.body is ${json.decode(response.body).toString()}");
       if (response.body == 'null') {
         _orders = [];
       } else {
         List<Order> fetchedOrders = [];
         final Map<String, dynamic> orderData = json.decode(response.body);
         for (MapEntry e in orderData.entries) {
+          print("extracting order from entry ${e.key.toString()}");
           Order newOrder = Order.fromJson(e);
+          print("adding Order ${e.key} to fetchedOrders...");
           fetchedOrders.add(newOrder);
           _orders = fetchedOrders.reversed.toList();
         }
       }
       notifyListeners();
     } catch (error) {
+      print(error.toString());
       rethrow;
     }
   }
