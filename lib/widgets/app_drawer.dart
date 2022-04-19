@@ -20,7 +20,7 @@ class AppDrawer extends StatelessWidget {
         ),
         const Divider(),
         ListTile(
-          leading: Icon(auth.isLoggedIn ? Icons.logout : Icons.login),
+          leading: Icon(auth.isLoggedIn ? Icons.exit_to_app : Icons.login),
           title: Text(auth.isLoggedIn ? "Log Out" : "Log In"),
           onTap: () {
             if (auth.isLoggedIn) {

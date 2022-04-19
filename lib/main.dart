@@ -42,8 +42,9 @@ class MyApp extends StatelessWidget {
             create: (ctx) => Orders([], Auth()),
           )
         ],
-        child: Consumer<Auth>(
-          builder: (ctx, auth, _) => MaterialApp(
+        child: Consumer<Auth>(builder: (ctx, auth, _) {
+          ifAuth(targetScreen) => auth.isLoggedIn ? targetScreen : AuthScreen();
+          return MaterialApp(
             title: config.title,
             theme: ThemeData(
               primarySwatch: Colors.purple,
@@ -52,19 +53,29 @@ class MyApp extends StatelessWidget {
               textTheme: Theme.of(context).textTheme.copyWith(
                   headline1: TextStyle(fontFamily: 'PermamentMarker')),
             ),
-            home: auth.isLoggedIn ? ProductsOverviewScreen() : AuthScreen(),
+            home: auth.isLoggedIn
+                ? const ProductsOverviewScreen()
+                : FutureBuilder(
+                    future: auth.tryAutoLogin(),
+                    builder: (ctx, authResultSnapshot) =>
+                        authResultSnapshot.connectionState ==
+                                ConnectionState.waiting
+                            ? const Center(child: CircularProgressIndicator())
+                            : const AuthScreen()),
             routes: {
               ProductsOverviewScreen.routeName: (ctx) =>
-                  ProductsOverviewScreen(),
-              ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
-              UserProductsScreen.routeName: (ctx) => UserProductsScreen(),
-              EditProductScreen.routeName: (ctx) => EditProductScreen(),
-              OrdersScreen.routeName: (ctx) => OrdersScreen(),
+                  ifAuth(ProductsOverviewScreen()),
+              ProductDetailScreen.routeName: (ctx) =>
+                  ifAuth(ProductDetailScreen()),
+              UserProductsScreen.routeName: (ctx) =>
+                  ifAuth(UserProductsScreen()),
+              EditProductScreen.routeName: (ctx) => ifAuth(EditProductScreen()),
+              OrdersScreen.routeName: (ctx) => ifAuth(OrdersScreen()),
               AuthScreen.routeName: (ctx) => AuthScreen(),
-              CartScreen.routeName: (ctx) => CartScreen(),
+              CartScreen.routeName: (ctx) => ifAuth(CartScreen()),
             },
             debugShowCheckedModeBanner: false,
-          ),
-        ));
+          );
+        }));
   }
 }

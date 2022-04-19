@@ -1,9 +1,11 @@
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_shopping_app/exceptions/http_exception.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:async';
 //
+import '../exceptions/http_exception.dart';
 import './user.dart';
 
 String api_key = dotenv.env['FIREBASE_API_KEY'] as String;
@@ -14,6 +16,7 @@ class Auth with ChangeNotifier {
   String? _token;
   DateTime? _expiryDate;
   User? _user;
+  Timer? _authTimer;
 
   Auth() {
     print("creating new Auth object...");
@@ -65,12 +68,19 @@ class Auth with ChangeNotifier {
       _expiryDate = DateTime.now()
           .add(Duration(seconds: int.parse(response['expiresIn'])));
       _user = User(response['localId'], _token as String);
+      _setAutoLogout();
       notifyListeners();
+      // set up shared preferences:
+      final preferences = await SharedPreferences.getInstance();
+      final userData = json.encode({
+        'token': _token,
+        'userId': _user?.userId,
+        'expiryDate': (_expiryDate as DateTime).toIso8601String()
+      });
+      preferences.setString('userData', userData);
     } catch (err) {
       rethrow;
     }
-
-    print(toString());
   }
 
   Future<void> signup(String email, String password) async {
@@ -81,11 +91,59 @@ class Auth with ChangeNotifier {
     return _userAuthentication(email, password, AuthMode.Login);
   }
 
-  void logout() {
+  Future<bool> tryAutoLogin() async {
+    print("trying tryAutoLogin()...");
+    try {
+      final preferences = await SharedPreferences.getInstance();
+      if (!preferences.containsKey('userData')) return false;
+
+      final userData = json.decode(preferences.getString('userData') as String)
+          as Map<String, dynamic>;
+      final expiryDate = DateTime.parse(userData['expiryDate'] as String);
+
+      // return false if token in memory has expired
+      if (expiryDate.isBefore(DateTime.now())) return false;
+
+      // if valid, unexpired token, autologin and return true:
+      _token = userData['token'] as String;
+      _user = User(userData['userId'] as String, _token as String);
+      _expiryDate = expiryDate;
+      _setAutoLogout();
+      notifyListeners();
+      return true;
+    } catch (error) {
+      print("Error: ${error.toString()}");
+      rethrow;
+    }
+  }
+
+  Future<void> logout() async {
     _token = null;
     _expiryDate = null;
     _user = null;
+    if (_authTimer != null) {
+      (_authTimer as Timer).cancel();
+      _authTimer = null;
+    }
     notifyListeners();
+
+    // remove our app's shared preferences from device
+    // to prevent accidentally logging them back in:
+    final preferences = await SharedPreferences.getInstance();
+    preferences.remove('userData');
+    // can also use preferences.clear() which will remove
+    // ALL of the app's data from the device memory (here
+    // we don't have any other data).)
+  }
+
+  void _setAutoLogout() {
+    if (_authTimer != null) {
+      (_authTimer as Timer).cancel();
+    }
+
+    final secondsToExpiry =
+        (_expiryDate as DateTime).difference(DateTime.now()).inSeconds;
+    _authTimer = Timer(Duration(seconds: secondsToExpiry), logout);
   }
 
   String toString() {

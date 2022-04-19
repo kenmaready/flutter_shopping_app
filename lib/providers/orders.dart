@@ -146,8 +146,12 @@ class Orders with ChangeNotifier {
   }
 
   Future<void> fetchOrders() async {
-    print("fetchOders() called...");
-    var url = Uri.https(base_url, '/orders.json', _authQuery);
+    print("fetchOrders() called...");
+    var queryString = _authQuery;
+    queryString['orderBy'] = json.encode('userId');
+    queryString['equalTo'] = json.encode(_auth.userId as String);
+
+    var url = Uri.https(base_url, '/orders.json', queryString);
 
     try {
       final response = await http.get(url);
