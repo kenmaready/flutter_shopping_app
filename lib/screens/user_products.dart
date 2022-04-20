@@ -21,6 +21,7 @@ class UserProductsScreen extends StatelessWidget {
     // final products = Provider.of<Products>(context);
 
     return Scaffold(
+      backgroundColor: Colors.purple.shade100,
       appBar: AppBar(
           title: const Text('Manage Your Products!',
               style: TextStyle(fontFamily: 'PermanentMarker')),

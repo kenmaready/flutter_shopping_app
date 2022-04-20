@@ -47,6 +47,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
     final orders = Provider.of<Orders>(context);
 
     return Scaffold(
+      backgroundColor: Colors.purple.shade100,
       appBar: AppBar(
           title: Text('Your Orders!',
               style: TextStyle(fontFamily: 'PermanentMarker'))),

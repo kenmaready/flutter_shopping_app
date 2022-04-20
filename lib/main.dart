@@ -2,6 +2,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 //
+import './helpers/custom_route.dart';
 import './providers/products.dart';
 import './providers/orders.dart';
 import './providers/auth.dart';
@@ -51,7 +52,11 @@ class MyApp extends StatelessWidget {
               accentColor: Colors.deepOrange,
               fontFamily: 'Lato',
               textTheme: Theme.of(context).textTheme.copyWith(
-                  headline1: TextStyle(fontFamily: 'PermamentMarker')),
+                  headline1: const TextStyle(fontFamily: 'PermamentMarker')),
+              pageTransitionsTheme: PageTransitionsTheme(builders: {
+                TargetPlatform.android: CustomPageTransitionBuilder(),
+                TargetPlatform.iOS: CustomPageTransitionBuilder()
+              }),
             ),
             home: auth.isLoggedIn
                 ? const ProductsOverviewScreen()

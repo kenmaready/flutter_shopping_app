@@ -14,37 +14,52 @@ class ProductDetailScreen extends StatelessWidget {
     final product =
         Provider.of<Products>(context, listen: false).findById(productId);
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Just ${product.title}!",
-            style: const TextStyle(fontFamily: 'PermanentMarker')),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-                height: 300,
-                width: double.infinity,
-                child: Image.network(product.imageUrl, fit: BoxFit.cover)),
-            const SizedBox(height: 10),
-            Text(product.title,
+        backgroundColor: Colors.purple.shade100,
+        // appBar: AppBar(
+        //   title: Text("Just ${product.title}!",
+        //       style: const TextStyle(fontFamily: 'PermanentMarker')),
+        // ),
+        body: CustomScrollView(slivers: [
+          SliverAppBar(
+              expandedHeight: 300,
+              pinned: true,
+              flexibleSpace: FlexibleSpaceBar(
+                  title: Container(
+                      color: Colors.black38,
+                      child: Text("Just ${product.title}!")),
+                  background: Hero(
+                      tag: product.id,
+                      child:
+                          Image.network(product.imageUrl, fit: BoxFit.cover)))),
+          SliverList(
+              delegate: SliverChildListDelegate(
+            [
+              const SizedBox(height: 10),
+              Text(
+                product.title,
                 style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey)),
-            const SizedBox(height: 10),
-            Text('\$${product.price.toStringAsFixed(2)}',
-                style: const TextStyle(color: Colors.grey)),
-            const SizedBox(height: 10),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              child: Text(product.description,
-                  textAlign: TextAlign.left,
-                  style: const TextStyle(color: Colors.grey)),
-            ),
-          ],
-        ),
-      ),
-    );
+                    color: Colors.white),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                '\$${product.price.toStringAsFixed(2)}',
+                style: const TextStyle(color: Colors.white),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(24),
+                child: Text(product.description,
+                    textAlign: TextAlign.left,
+                    style: const TextStyle(color: Colors.white)),
+              ),
+              const SizedBox(height: 800),
+            ],
+          ))
+        ]));
   }
 }

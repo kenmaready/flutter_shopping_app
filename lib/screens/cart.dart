@@ -51,6 +51,7 @@ class _CartScreenState extends State<CartScreen> {
     final cart = Provider.of<Cart>(context);
 
     return Scaffold(
+        backgroundColor: Colors.purple.shade100,
         appBar: AppBar(
             title: Text("Your Blamazon Cart!",
                 style: TextStyle(fontFamily: 'PermanentMarker'))),

@@ -21,18 +21,20 @@ class ProductItem extends StatelessWidget {
               .pushNamed(ProductDetailScreen.routeName, arguments: product.id);
         },
         child: GridTile(
-            child: Image.network(
-              product.imageUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (context, exception, stacktrace) {
-                return const Center(child: Text("No Valid Image provided"));
-              },
+            child: Hero(
+              tag: product.id,
+              child: FadeInImage(
+                placeholder:
+                    const AssetImage('assets/img/product-placeholder.png'),
+                image: NetworkImage(product.imageUrl),
+                fit: BoxFit.cover,
+              ),
             ),
             footer: GridTileBar(
               leading: IconButton(
                 icon: product.isFavorite
-                    ? Icon(Icons.favorite)
-                    : Icon(Icons.favorite_border),
+                    ? const Icon(Icons.favorite)
+                    : const Icon(Icons.favorite_border),
                 color: Theme.of(context).accentColor,
                 onPressed: () {
                   product.toggleFavoriteStatus(
@@ -44,7 +46,7 @@ class ProductItem extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               trailing: IconButton(
-                icon: Icon(Icons.shopping_cart),
+                icon: const Icon(Icons.shopping_cart),
                 color: Theme.of(context).accentColor,
                 onPressed: () {
                   cart.addItem(product, 1);
